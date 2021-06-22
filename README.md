@@ -1,1 +1,1 @@
-# chart-slp-companion-app-uploader
+Uploader Companion App for Chart.slp
