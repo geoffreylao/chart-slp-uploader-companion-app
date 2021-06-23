@@ -359,4 +359,4 @@ function parse_folder(folder){
 
 }// parse_folder
 
-parse_folder('Slippi')
+parse_folder('./')
