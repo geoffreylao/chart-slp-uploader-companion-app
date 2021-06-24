@@ -2,12 +2,26 @@
   "name": "chart-slp-uploader-companion-app",
   "version": "1.0.0",
   "description": "Uploader Companion App for Chart.slp",
-  "main": "oldscript.js",
+  "main": "script.js",
+  "bin": "script.js",
+  "pkg": {
+    "assets": [
+      "./node_modules/@slippi/slippi-js",
+      "./node_modules/dotenv",
+      "./node_modules/fs",
+      "./node_modules/mongodb",
+      "./node_modules/saslprep",
+      "./node_modules/prompt-sync",
+      ".env"
+    ]
+  },
   "dependencies": {
     "@slippi/slippi-js": "^6.1.1",
     "dotenv": "^10.0.0",
     "fs": "^0.0.1-security",
-    "mongodb": "^3.6.9"
+    "mongodb": "^3.6.9",
+    "prompt-sync": "^4.2.0",
+    "saslprep": "^1.0.3"
   },
   "devDependencies": {},
   "scripts": {

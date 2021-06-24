@@ -4,12 +4,14 @@ const { SlippiGame } = require('@slippi/slippi-js');
 const fs = require('fs');
 const uri = process.env.URL;
 var MongoClient = require('mongodb').MongoClient;
-
+const prompt = require('prompt-sync')({sigint: true});
 
 // Variables for parse_folder function
 var obj_arr = [];
 var failed_inserts = [];
 var inserted = 0;
+var totalFiles = fs.readdirSync('./').length;
+var count = 0;
 
 function parse_slp(filename){
   try {
@@ -312,7 +314,7 @@ function parse_slp(filename){
 
 function parse_folder(folder){
   fs.readdirSync(folder).forEach(file => {
-    console.log("Parsing: " + folder + '/' + file);
+    console.log(`Parsing: ${folder}/${file} (${++count}/${totalFiles})`)
 
     parse_slp(folder + '/' + file);
   });
@@ -335,7 +337,7 @@ function parse_folder(folder){
 
       dbo.collection('matches').insertMany(obj_arr, {ordered: false} , function(err, res) {
         if (err){
-          console.log("possible duplicate matches")
+          console.log("Some matches may already exist in the database!")
 
           obj_arr = [];
           failed_inserts = [];
@@ -359,4 +361,5 @@ function parse_folder(folder){
 
 }// parse_folder
 
-parse_folder('./')
+parse_folder('.')
+const end = prompt('Press enter to exit!')
