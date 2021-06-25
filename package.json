@@ -12,11 +12,13 @@
       "./node_modules/mongodb",
       "./node_modules/saslprep",
       "./node_modules/prompt-sync",
+      "./node_modules/axios",
       ".env"
     ]
   },
   "dependencies": {
     "@slippi/slippi-js": "^6.1.1",
+    "axios": "^0.21.1",
     "dotenv": "^10.0.0",
     "fs": "^0.0.1-security",
     "mongodb": "^3.6.9",

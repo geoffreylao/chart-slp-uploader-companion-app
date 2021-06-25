@@ -2,9 +2,7 @@
 require('dotenv').config();
 const { SlippiGame } = require('@slippi/slippi-js');
 const fs = require('fs');
-const uri = process.env.URL;
-var MongoClient = require('mongodb').MongoClient;
-const prompt = require('prompt-sync')({sigint: true});
+const axios = require('axios')
 
 // Variables for parse_folder function
 var obj_arr = [];
@@ -270,8 +268,18 @@ function parse_slp(filename){
       ],
     };
   
-    obj_arr.push(myobj);
+    //obj_arr.push(myobj);
     inserted++;
+
+    axios
+      .post('http://localhost:8080/api/matches/external', myobj)
+      .then(res => {
+        console.log(`statusCode: ${res.statusCode}`)
+        console.log(res)
+      })
+      .catch(error => {
+        console.error(error)
+      })
 
     //var match = new Match(myobj)
 
@@ -319,47 +327,9 @@ function parse_folder(folder){
     parse_slp(folder + '/' + file);
   });
 
-  console.log('Inserted: ' + inserted)
+  console.log('Inserting: ' + inserted)
   console.log("Failed inserts: " + failed_inserts.length);
-
-  inserted = 0;
-  failed_inserts = [];
-  duplicates = 0;
-
-  if (obj_arr.length === 0) {
-    console.log("Nothing to insert!")
-
-    failed_inserts = [];
-  }else{
-    MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true } , function(err,db) {
-      if (err) throw err;
-      var dbo = db.db("mongoslp");
-
-      dbo.collection('matches').insertMany(obj_arr, {ordered: false} , function(err, res) {
-        if (err){
-          console.log("Some matches may already exist in the database!")
-
-          obj_arr = [];
-          failed_inserts = [];
-          count = 0;
-
-          db.close();
-        }else{
-          console.log("Number of documents inserted: " + res.insertedCount);
-          myinsert = res.insertedCount;
-  
-          db.close();
-  
-          obj_arr = [];
-          failed_inserts = [];
-          count = 0;
-
-        }
-      }); // dbo.collection
-    }); // MongoClient.connect
-  } // else
 
 }// parse_folder
 
 parse_folder('.')
-const end = prompt('Press enter to exit!')
