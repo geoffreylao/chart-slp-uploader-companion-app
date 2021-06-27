@@ -1,17 +1,23 @@
 // .slp parsing function imports
 require('dotenv').config();
-const { SlippiGame } = require('@slippi/slippi-js');
+const {
+  SlippiGame
+} = require('@slippi/slippi-js');
 const fs = require('fs');
 const axios = require('axios')
+const prompt = require('prompt-sync')({
+  sigint: true
+});
 
 // Variables for parse_folder function
 var obj_arr = [];
-var failed_inserts = [];
+var failed_inserts = 0;
 var inserted = 0;
 var totalFiles = fs.readdirSync('./').length;
 var count = 0;
+var duplicate = 0;
 
-function parse_slp(filename){
+async function parse_slp(filename) {
   try {
     var game = new SlippiGame(filename);
     // Get game settings – stage, characters, etc
@@ -25,146 +31,145 @@ function parse_slp(filename){
 
     var p0_conversions = [];
     var p1_conversions = [];
-  
+
     for (let index = 0; index < stats.conversions.length; index++) {
-      if(stats.conversions[index].playerIndex == 0){
+      if (stats.conversions[index].playerIndex == 0) {
         p0_conversions.push(stats.conversions[index]);
-      }else if(stats.conversions[index].playerIndex == 1){
+      } else if (stats.conversions[index].playerIndex == 1) {
         p1_conversions.push(stats.conversions[index]);
       }
     }
-  
+
     var p0_stocks = [];
     var p1_stocks = [];
     p0Kills = 0;
     p1Kills = 0;
-  
+
     for (let index = 0; index < stats.stocks.length; index++) {
-      if(stats.stocks[index].playerIndex == 0){
+      if (stats.stocks[index].playerIndex == 0) {
         p0_stocks.push(stats.stocks[index]);
-        if(stats.stocks[index].deathAnimation !== null){
+        if (stats.stocks[index].deathAnimation !== null) {
           p1Kills++;
         }
-      }else if(stats.stocks[index].playerIndex == 1){
+      } else if (stats.stocks[index].playerIndex == 1) {
         p1_stocks.push(stats.stocks[index]);
-        if(stats.stocks[index].deathAnimation !== null){
+        if (stats.stocks[index].deathAnimation !== null) {
           p0Kills++;
         }
       }
     }
-  
+
     var stage_dict = {
-      2 : "FOUNTAIN_OF_DREAMS",
-      3 : "POKEMON_STADIUM",
-      4 : "PEACHS_CASTLE",
-      5 : "KONGO_JUNGLE",
-      6 : "BRINSTAR",
-      7 : "CORNERIA",
-      8 : "YOSHIS_STORY",
-      9 : "ONETT",
-      10 : "MUTE_CITY",
-      11 : "RAINBOW_CRUISE",
-      12 : "JUNGLE_JAPES",
-      13 : "GREAT_BAY",
-      14 : "HYRULE_TEMPLE",
-      15 : "BRINSTAR_DEPTHS",
-      16 : "YOSHIS_ISLAND",
-      17 : "GREEN_GREENS",
-      18 : "FOURSIDE",
-      19 : "MUSHROOM_KINGDOM",
-      20 : "MUSHROOM_KINGDOM_2",
-      22 : "VENOM",
-      23 : "POKE_FLOATS",
-      24 : "BIG_BLUE",
-      25 : "ICICLE_MOUNTAIN",
-      26 : "ICETOP",
-      27 : "FLAT_ZONE",
-      28 : "DREAMLAND",
-      29 : "YOSHIS_ISLAND_N64",
-      30 : "KONGO_JUNGLE_N64",
-      31 : "BATTLEFIELD",
-      32 : "FINAL_DESTINATION"
+      2: "FOUNTAIN_OF_DREAMS",
+      3: "POKEMON_STADIUM",
+      4: "PEACHS_CASTLE",
+      5: "KONGO_JUNGLE",
+      6: "BRINSTAR",
+      7: "CORNERIA",
+      8: "YOSHIS_STORY",
+      9: "ONETT",
+      10: "MUTE_CITY",
+      11: "RAINBOW_CRUISE",
+      12: "JUNGLE_JAPES",
+      13: "GREAT_BAY",
+      14: "HYRULE_TEMPLE",
+      15: "BRINSTAR_DEPTHS",
+      16: "YOSHIS_ISLAND",
+      17: "GREEN_GREENS",
+      18: "FOURSIDE",
+      19: "MUSHROOM_KINGDOM",
+      20: "MUSHROOM_KINGDOM_2",
+      22: "VENOM",
+      23: "POKE_FLOATS",
+      24: "BIG_BLUE",
+      25: "ICICLE_MOUNTAIN",
+      26: "ICETOP",
+      27: "FLAT_ZONE",
+      28: "DREAMLAND",
+      29: "YOSHIS_ISLAND_N64",
+      30: "KONGO_JUNGLE_N64",
+      31: "BATTLEFIELD",
+      32: "FINAL_DESTINATION"
     }
-  
+
     var char_dict = {
-      0 : "CAPTAIN_FALCON",
-      1 : "DONKEY_KONG",
-      2 : "FOX" ,
-      3 : "GAME_AND_WATCH",
-      4 : "KIRBY",
-      5 : "BOWSER",
-      6 : "LINK",
-      7 : "LUIGI",
-      8 : "MARIO",
-      9 : "MARTH",
-      10 : "MEWTWO",
-      11 : "NESS",
-      12 : "PEACH",
-      13 : "PIKACHU",
-      14 : "ICE_CLIMBERS",
-      15 : "JIGGLYPUFF",
-      16 : "SAMUS",
-      17 : "YOSHI",
-      18 : "ZELDA",
-      19 : "SHEIK",
-      20 : "FALCO",
-      21 : "YOUNG_LINK",
-      22 : "DR_MARIO",
-      23 : "ROY",
-      24 : "PICHU",
-      25 : "GANONDORF"
+      0: "CAPTAIN_FALCON",
+      1: "DONKEY_KONG",
+      2: "FOX",
+      3: "GAME_AND_WATCH",
+      4: "KIRBY",
+      5: "BOWSER",
+      6: "LINK",
+      7: "LUIGI",
+      8: "MARIO",
+      9: "MARTH",
+      10: "MEWTWO",
+      11: "NESS",
+      12: "PEACH",
+      13: "PIKACHU",
+      14: "ICE_CLIMBERS",
+      15: "JIGGLYPUFF",
+      16: "SAMUS",
+      17: "YOSHI",
+      18: "ZELDA",
+      19: "SHEIK",
+      20: "FALCO",
+      21: "YOUNG_LINK",
+      22: "DR_MARIO",
+      23: "ROY",
+      24: "PICHU",
+      25: "GANONDORF"
     }
 
-    function check_winner(stats){
+    function check_winner(stats) {
 
-        var player_zero_percent;
-        var player_one_percent;
-        var winner;
+      var player_zero_percent;
+      var player_one_percent;
+      var winner;
 
-        // set last stocks final percent
-        for (let i = 0; i < stats.stocks.length; i++) {
-            if(stats.stocks[i].playerIndex == 0){
-                player_zero_percent = stats.stocks[i].currentPercent;
-            }else if(stats.stocks[i].playerIndex == 1){
-                player_one_percent = stats.stocks[i].currentPercent;
-            }
+      // set last stocks final percent
+      for (let i = 0; i < stats.stocks.length; i++) {
+        if (stats.stocks[i].playerIndex == 0) {
+          player_zero_percent = stats.stocks[i].currentPercent;
+        } else if (stats.stocks[i].playerIndex == 1) {
+          player_one_percent = stats.stocks[i].currentPercent;
         }
+      }
 
-        if(p0Kills == 4){
+      if (p0Kills == 4) {
+        winner = 0;
+      } else if (p1Kills == 4) {
+        winner = 1;
+      } else if (metadata.lastFrame == 28800) {
+        if (p0Kills > p1Kills) {
+          winner = 0;
+        } else if (p0Kills < p1Kills) {
+          winner = 1;
+        } else if (p0Kills === p1Kills) {
+          if (player_zero_percent > player_one_percent) {
+            winner = 1;
+          } else if (player_zero_percent < player_one_percent) {
             winner = 0;
-        }else if(p1Kills == 4){
-            winner =  1;
-        }else if(metadata.lastFrame == 28800){
-            if(p0Kills > p1Kills){
-                winner =  0;
-            }else if(p0Kills < p1Kills){
-                winner =  1;
-            }else if(p0Kills === p1Kills){
-                if(player_zero_percent > player_one_percent){
-                    winner = 1;
-                }else if(player_zero_percent < player_one_percent){
-                    winner = 0;
-                }else if(player_zero_percent == player_one_percent){
-                    winner = 2;
-                }
-            }
-        }else{
-            winner = 3;
+          } else if (player_zero_percent == player_one_percent) {
+            winner = 2;
+          }
         }
+      } else {
+        winner = 3;
+      }
 
-        switch(winner){
-            case 0:
-                return metadata.players[0].names.code;
-            case 1:
-                return metadata.players[1].names.code;
-            case 2:
-                return "DRAW";
-            case 3:
-                return "INCOMPLETE"
+      switch (winner) {
+        case 0:
+          return metadata.players[0].names.code;
+        case 1:
+          return metadata.players[1].names.code;
+        case 2:
+          return "DRAW";
+        case 3:
+          return "INCOMPLETE"
 
-        }
+      }
     }
-
 
     var myobj = {
       matchid: metadata.startAt + metadata.players[0].names.code + metadata.players[1].names.code,
@@ -181,9 +186,8 @@ function parse_slp(filename){
         gameComplete: check_winner(stats) === "INCOMPLETE" ? false : true,
         winner: check_winner(stats),
         firstBlood: metadata.players[stats.stocks[0].playerIndex].names.code
-      }, 
-      players: [
-        {
+      },
+      players: [{
           playerIndex: settings.players[0].playerIndex,
           characterId: settings.players[0].characterId,
           characterColor: settings.players[0].characterColor,
@@ -229,7 +233,7 @@ function parse_slp(filename){
           characterId: settings.players[1].characterId,
           characterColor: settings.players[1].characterColor,
           code: metadata.players[1].names.code,
-          name:  metadata.players[1].names.netplay,
+          name: metadata.players[1].names.netplay,
           characterString: char_dict[settings.players[1].characterId],
           actionCounts: {
             wavedashCount: stats.actionCounts[1].wavedashCount,
@@ -267,69 +271,49 @@ function parse_slp(filename){
         }
       ],
     };
-  
-    //obj_arr.push(myobj);
-    inserted++;
 
-    axios
-      .post('http://localhost:8080/api/matches/external', myobj)
-      .then(res => {
-        console.log(`statusCode: ${res.statusCode}`)
-        console.log(res)
-      })
-      .catch(error => {
-        console.error(error)
-      })
-
-    //var match = new Match(myobj)
-
-    // match
-    //   .save(match)
-    //   .then(data => {
-    //     inserted++;
-    //     console.log('inserted: ' + data.matchid )
-    //     console.log('inserted count: ' + inserted )
-    //   })
-    //   .catch(err => {
-    //     if(err.code === 11000){        
-    //       duplicates++;
-    //       console.log('duplicates:' + duplicates)
-    //     }        
-    //   });
-
-    // MongoClient.connect(uri,{ useNewUrlParser: true, useUnifiedTopology: true }, function(err, db) {
-    //   if (err) throw err;
-    //   var dbo = db.db("mongoslp");
-
-    //   dbo.collection("matches").insertOne(myobj, {ordered: false} , function(err, res) {
-    //     if (err) {
-    //       console.log('duplicate match');
-    //       duplicates++;
-    //     }else{
-    //       console.log("1 document inserted");
-    //       inserted++;
-    //       db.close();
-    //     }
-    //   });
-    // }); 
-
+    obj_arr.push(myobj);
   } catch (error) {
-    //console.log(error)
     console.log("Error parsing: " + (filename));
-    failed_inserts.push((filename));
+    failed_inserts++;
   }
 }
 
-function parse_folder(folder){
-  fs.readdirSync(folder).forEach(file => {
-    console.log(`Parsing: ${folder}/${file} (${++count}/${totalFiles})`)
+fs.readdir('.', (err, files) => {
+  if (err)
+    console.log(err);
+  else {
+    for (const file of files) {
+      console.log(`Parsing: ${file} (${++count}/${totalFiles})`)
 
-    parse_slp(folder + '/' + file);
-  });
+      parse_slp(file);
+    }
 
-  console.log('Inserting: ' + inserted)
-  console.log("Failed inserts: " + failed_inserts.length);
+    const forLoop = async _ => {
+      console.log('Start')
 
-}// parse_folder
+      for (let i = 0; i < obj_arr.length; i++) {
+        const myaxios = await axios
+          .post('https://chart-slp-server.herokuapp.com/api/matches/external', obj_arr[i])
+          .then(res => {
+            if (res.data.includes('inserted')) {
+              inserted++;
+            }
+            if (res.data.includes('duplicate')) {
+              duplicate++;
+            }
+            console.log(res.data)
+          })
+          .catch(error => {
+            console.error('Axios Error')
+          })
+      }
+      console.log('End')
+      console.log(`Inserted: ${inserted}\nDuplicates: ${duplicate}\nFailed: ${failed_inserts}`)
+      const name = prompt('Press Enter to exit');
+    }
 
-parse_folder('.')
+    forLoop()
+
+  }
+})
