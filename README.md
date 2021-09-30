@@ -17,4 +17,6 @@ If you are wary of running an .exe on your machine you can also build the script
 
 ## Known Issues
 - Uploads of folders with an incredibly large amount of files can take several hours, please be patient! (Tested 14400 files: ~8 hours)
-- Only supported for windows right now
+- Only supported for windows right now. <br>EDIT: And Linux! Thanks to itsonlyMire: "this companion app has been working well for me on Linux (Ubuntu 21.04). I use the method of running npm install and node script.js in the folder of my Slippi files and they upload successfully"
+
+
