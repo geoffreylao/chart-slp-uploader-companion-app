@@ -5,7 +5,7 @@ const {
 } = require('@slippi/slippi-js');
 const fs = require('fs');
 const axios = require('axios')
-const prompt = require('prompt-sync')({
+const promptSync = require('prompt-sync')({
   sigint: true
 });
 
@@ -42,8 +42,8 @@ async function parse_slp(filename) {
 
     var p0_stocks = [];
     var p1_stocks = [];
-    p0Kills = 0;
-    p1Kills = 0;
+    var p0Kills = 0;
+    var p1Kills = 0;
 
     for (let index = 0; index < stats.stocks.length; index++) {
       if (stats.stocks[index].playerIndex == 0) {
@@ -221,7 +221,7 @@ async function parse_slp(filename) {
           counterHits: stats.overall[0].counterHitRatio.count,
           trades: stats.overall[0].beneficialTradeRatio.count,
           deathCount: p1Kills,
-          lcancelPercent: parseInt((stats.actionCounts[0].lCancelCount.success / (stats.actionCounts[0].lCancelCount.success + stats.actionCounts[0].lCancelCount.fail)) * 100),
+          lcancelPercent: Number((stats.actionCounts[0].lCancelCount.success / (stats.actionCounts[0].lCancelCount.success + stats.actionCounts[0].lCancelCount.fail)) * 100),
           grabCount: stats.actionCounts[0].grabCount,
           throwCount: stats.actionCounts[0].throwCount,
           groundTechCount: stats.actionCounts[0].groundTechCount,
@@ -262,7 +262,7 @@ async function parse_slp(filename) {
           counterHits: stats.overall[1].counterHitRatio.count,
           trades: stats.overall[1].beneficialTradeRatio.count,
           deathCount: p0Kills,
-          lcancelPercent: parseInt((stats.actionCounts[1].lCancelCount.success / (stats.actionCounts[1].lCancelCount.success + stats.actionCounts[1].lCancelCount.fail)) * 100),
+          lcancelPercent: Number((stats.actionCounts[1].lCancelCount.success / (stats.actionCounts[1].lCancelCount.success + stats.actionCounts[1].lCancelCount.fail)) * 100),
           grabCount: stats.actionCounts[1].grabCount,
           throwCount: stats.actionCounts[1].throwCount,
           groundTechCount: stats.actionCounts[1].groundTechCount,
@@ -289,12 +289,12 @@ fs.readdir('.', (err, files) => {
       parse_slp(file);
     }
 
-    const forLoop = async _ => {
+    const forLoop = async () => {
       console.log('Start')
 
       for (let i = 0; i < obj_arr.length; i++) {
         const myaxios = await axios
-          .post('https://chart-slp-server.herokuapp.com/api/matches/external', obj_arr[i])
+          .post('https://example.com', obj_arr[i])
           .then(res => {
             if (res.data.includes('inserted')) {
               inserted++;
@@ -310,7 +310,7 @@ fs.readdir('.', (err, files) => {
       }
       console.log('End')
       console.log(`Inserted: ${inserted}\nDuplicates: ${duplicate}\nFailed: ${failed_inserts}`)
-      const name = prompt('Press Enter to exit');
+      const name = promptSync('Press Enter to exit');
     }
 
     forLoop()
