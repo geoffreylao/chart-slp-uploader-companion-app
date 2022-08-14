@@ -2,25 +2,27 @@ import {
   ConversionType,
   GameStartType,
   MetadataType,
+  SlippiGame,
   StatsType,
   StockType,
 } from "@slippi/slippi-js";
 import characters from "./data/characters";
 import stages from "./data/stages";
+import { ChartSlpGame } from "./data/types";
 
 interface ICheckWinner {
   stats: StatsType;
+  metadata: MetadataType;
   p0Kills: number;
   p1Kills: number;
-  metadata: MetadataType;
 }
 
-const check_winner = ({
+function checkWinner({
   stats,
+  metadata,
   p0Kills,
   p1Kills,
-  metadata,
-}: ICheckWinner): string => {
+}: ICheckWinner): string {
   let player_zero_percent: number;
   let player_one_percent: number;
   let winner: number;
@@ -66,13 +68,34 @@ const check_winner = ({
     case 3:
       return "INCOMPLETE";
   }
-};
+}
 
-const makeObj = (
-  settings: GameStartType,
-  metadata: MetadataType,
-  stats: StatsType
-) => {
+/**
+ * Parse a single slippi replay file into a `ChartSlpGame` data object
+ * 
+ * @param filename 
+ * @param currentIndex index of the current game file (only used for logging)
+ * @param total total number of game files that we intend to parse 
+ */
+async function parseSlp(
+  filename: string,
+  currentIndex: number,
+  total: number
+): Promise<ChartSlpGame | null> {
+  console.log(`Parsing: ${filename} (${currentIndex + 1}/${total})`);
+
+  const game = new SlippiGame(filename);
+  // Get game settings – stage, characters, etc
+  const settings = game.getSettings();
+  // Get metadata - start time, platform played on, etc
+  const metadata = game.getMetadata();
+  // Get computed stats - openings / kill, conversions, etc
+  const stats = game.getStats();
+
+  if (settings === null || metadata === null || stats === null) {
+    return null;
+  }
+
   let p0_conversions: ConversionType[] = [];
   let p1_conversions: ConversionType[] = [];
 
@@ -103,14 +126,14 @@ const makeObj = (
     }
   }
 
-  const winner = check_winner({
+  const winner = checkWinner({
     stats,
+    metadata,
     p0Kills,
     p1Kills,
-    metadata,
   });
 
-  return {
+  const data: ChartSlpGame = {
     matchid:
       metadata.startAt +
       metadata.players[0].names.code +
@@ -224,6 +247,8 @@ const makeObj = (
       },
     ],
   };
-};
 
-export default makeObj;
+  return data;
+}
+
+export default parseSlp;
