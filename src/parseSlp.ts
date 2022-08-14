@@ -73,9 +73,9 @@ function checkWinner({
 /**
  * Parse a single slippi replay file into a `ChartSlpGame` data object
  * 
- * @param filename 
- * @param currentIndex index of the current game file (only used for logging)
- * @param total total number of game files that we intend to parse 
+ * @param filename Path to a slippi replay file
+ * @param currentIndex Index of the current game file (only used for logging)
+ * @param total Total number of game files that we intend to parse 
  */
 async function parseSlp(
   filename: string,

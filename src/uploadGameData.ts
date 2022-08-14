@@ -1,7 +1,7 @@
 import axios from "axios";
 import { ChartSlpGame } from "./data/types";
 
-const CHART_SLP_ENDPOINT = "http://localhost:8080/";
+const CHART_SLP_ENDPOINT = "https://chart-slp-server.herokuapp.com/api/matches/external";
 
 /**
  * Upload data for a single game to chartslp.com

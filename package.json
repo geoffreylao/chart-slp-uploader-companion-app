@@ -4,18 +4,6 @@
   "description": "Uploader Companion App for Chart.slp",
   "main": "main.ts",
   "bin": "main.ts",
-  "pkg": {
-    "assets": [
-      "./node_modules/@slippi/slippi-js",
-      "./node_modules/dotenv",
-      "./node_modules/fs",
-      "./node_modules/mongodb",
-      "./node_modules/saslprep",
-      "./node_modules/prompt-sync",
-      "./node_modules/axios",
-      ".env"
-    ]
-  },
   "dependencies": {
     "@slippi/slippi-js": "^6.1.1",
     "axios": "^0.21.1",
@@ -27,10 +15,13 @@
   "devDependencies": {
     "@types/lodash": "^4.14.182",
     "@types/node": "^18.7.3",
-    "@types/prompt-sync": "^4.1.1"
+    "npm-run-all": "^4.1.5"
   },
   "scripts": {
-    "start": "ts-node src/main.ts"
+    "start": "ts-node src/main.ts",
+    "compile": "npx tsc --outDir temp",
+    "package": "npx pkg temp/main.js --out-path dist",
+    "build": "run-s compile package"
   },
   "repository": {
     "type": "git",

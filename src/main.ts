@@ -50,7 +50,7 @@ async function main() {
       const results = await Promise.all(gameBatch.map(uploadGameData));
       for (const result of results) {
         if (result === "INSERTED") inserted++;
-        else if (result === "DUPLICATE") inserted++;
+        else if (result === "DUPLICATE") duplicate++;
         else if (result === "FAILED") failedInserts++;
       }
     }
