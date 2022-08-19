@@ -4,6 +4,8 @@ import parseSlp from "./parseSlp";
 import prompt from "./utils/prompt";
 import { ChartSlpGame } from "./data/types";
 import uploadGameData from "./uploadGameData";
+import path from "path";
+
 
 // Games will be uploaded to chartslp in batches. Change this value to set how
 // many games will be in each batch. I don't know how much the server can handle
@@ -12,13 +14,17 @@ import uploadGameData from "./uploadGameData";
 const MAX_SIMULTANEOUS_UPLOADS = 3;
 
 async function main() {
+  const cwd = (process as any).pkg
+    ? path.join(process.execPath, "..")
+    : path.join(__dirname, "..");
+
   // Counters for uploaded games
   let inserted = 0;
   let duplicate = 0;
 
   try {
     // Find slippi replay files in current directory
-    const entries = await fs.readdir(".", { withFileTypes: true });
+    const entries = await fs.readdir(cwd, { withFileTypes: true });
     const files = entries
       .filter((entry) => entry.isFile() && entry.name.endsWith(".slp"))
       .map((entry) => entry.name);
@@ -27,7 +33,9 @@ async function main() {
 
     // Parse all replay files concurrently rather than in sequence
     const gameData = await Promise.all(
-      files.map((filename, i) => parseSlp(filename, i, totalFiles))
+      files.map((filename, i) =>
+        parseSlp(path.join(cwd, filename), i, totalFiles)
+      )
     );
 
     // Results from parsing will either be a data object if successfully parsed,
