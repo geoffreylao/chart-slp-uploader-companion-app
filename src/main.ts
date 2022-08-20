@@ -6,7 +6,6 @@ import { ChartSlpGame } from "./data/types";
 import uploadGameData from "./uploadGameData";
 import path from "path";
 
-
 // Games will be uploaded to chartslp in batches. Change this value to set how
 // many games will be in each batch. I don't know how much the server can handle
 // at a time so I set it to a modest value of 3. This should improve upload
