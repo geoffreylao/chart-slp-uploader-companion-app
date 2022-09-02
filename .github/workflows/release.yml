@@ -1,0 +1,32 @@
+name: Tagged Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-and-release:
+    runs-on: macos-arm64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build for Release
+        run: npm run build
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/chart-slp-upload-win-x64.exe
+            dist/chart-slp-upload-macos-x64
+            dist/chart-slp-upload-macos-arm64
+            dist/chart-slp-upload-linux-x64
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

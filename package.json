@@ -2,32 +2,24 @@
   "name": "chart-slp-uploader-companion-app",
   "version": "1.0.0",
   "description": "Uploader Companion App for Chart.slp",
-  "main": "script.js",
-  "bin": "script.js",
-  "pkg": {
-    "assets": [
-      "./node_modules/@slippi/slippi-js",
-      "./node_modules/dotenv",
-      "./node_modules/fs",
-      "./node_modules/mongodb",
-      "./node_modules/saslprep",
-      "./node_modules/prompt-sync",
-      "./node_modules/axios",
-      ".env"
-    ]
-  },
   "dependencies": {
     "@slippi/slippi-js": "^6.1.1",
     "axios": "^0.21.1",
-    "dotenv": "^10.0.0",
     "fs": "^0.0.1-security",
-    "mongodb": "^3.6.9",
-    "prompt-sync": "^4.2.0",
-    "saslprep": "^1.0.3"
+    "lodash": "^4.17.21",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.7.4"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/lodash": "^4.14.182",
+    "@types/node": "^18.7.3",
+    "npm-run-all": "^4.1.5"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "ts-node src/main.ts",
+    "compile": "npx --yes tsc --outDir temp",
+    "package": "npx --yes pkg temp/main.js -o dist/chart-slp-upload --targets node16-win-x64,node16-macos-x64,node16-macos-arm64,node16-linux-x64",
+    "build": "run-s compile package"
   },
   "repository": {
     "type": "git",
